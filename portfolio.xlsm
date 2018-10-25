@@ -22,7 +22,7 @@ stocks(10) = "FVX.csv"
 
 
 For i = 0 To 10
-    Root = "C:\Users\goudurix\Desktop\portfolio_project\data\"
+    Root = "Your Path"
     File = stocks(i)
     Workbooks.Open Filename:=Root & File, Local:=True
     Windows(File).Activate
@@ -39,7 +39,7 @@ For i = 0 To 10
 Next i
 
 'Date
-Root = "C:\Users\goudurix\Desktop\portfolio_project\data\"
+Root = "Your Path\"
 File = "AMZN.csv"
 Workbooks.Open Filename:=Root & File, Local:=True
 Windows(File).Activate
@@ -72,11 +72,9 @@ For n = 0 To 10
     Cells(1, n + 2).value = nom(n)
 Next n
 
-'Workbooks.Open Filename:="C:\Users\goudurix\Desktop\portfolio_project\data\NDX.csv", Local:=True
-
 End Sub
 
-'"C:\Users\goudurix\Desktop\portfolio_project\data\AMZN.csv"'
+
 
 
 Function SMA_20(last_prices As Range, N_days)
@@ -144,8 +142,6 @@ If n = 10 Then
         Cells(i, n + 26).value = (Cells(i, n + 2).value / Cells(i - 1, n + 2).value) - 1
     Next i
 End If
-
-MsgBox IsNumeric(Cells(3, 36))
 
 
 End Sub
