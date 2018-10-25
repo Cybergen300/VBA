@@ -1,0 +1,151 @@
+
+
+Sub import_data()
+
+Dim stocks(10) As String
+Dim i As Integer
+
+
+
+'stocks_name'
+stocks(0) = "AAPL.csv"
+stocks(1) = "AMZN.csv"
+stocks(2) = "BIIB.csv"
+stocks(3) = "FB.csv"
+stocks(4) = "GOOGL.csv"
+stocks(5) = "MSFT.csv"
+stocks(6) = "NFLX.csv"
+stocks(7) = "QCOM.csv"
+stocks(8) = "TSLA.csv"
+stocks(9) = "NDX.csv"
+stocks(10) = "FVX.csv"
+
+
+For i = 0 To 10
+    Root = "C:\Users\goudurix\Desktop\portfolio_project\data\"
+    File = stocks(i)
+    Workbooks.Open Filename:=Root & File, Local:=True
+    Windows(File).Activate
+    Range("F:F").Select
+    Selection.Copy
+    Application.WindowState = xlMinimized
+
+
+    Windows("Portfolio.xlsm").Activate
+    Cells(1, i + 2).Select
+    ActiveSheet.Paste
+
+
+Next i
+
+'Date
+Root = "C:\Users\goudurix\Desktop\portfolio_project\data\"
+File = "AMZN.csv"
+Workbooks.Open Filename:=Root & File, Local:=True
+Windows(File).Activate
+Columns("A").Select
+Selection.Copy
+'Application.WindowState = xlMinimized'
+Windows("Portfolio.xlsm").Activate
+Worksheets("Feuil1").Activate
+Columns("A").Select
+ActiveSheet.Paste
+
+
+'Column names
+Dim nom(10) As String
+Dim n As Integer
+
+nom(0) = "AAPL"
+nom(1) = "AMZN"
+nom(2) = "BIIB"
+nom(3) = "FB"
+nom(4) = "GOOGL"
+nom(5) = "MSFT"
+nom(6) = "NFLX"
+nom(7) = "QCOM"
+nom(8) = "TSLA"
+nom(9) = "NDX"
+nom(10) = "FVX"
+
+For n = 0 To 10
+    Cells(1, n + 2).value = nom(n)
+Next n
+
+'Workbooks.Open Filename:="C:\Users\goudurix\Desktop\portfolio_project\data\NDX.csv", Local:=True
+
+End Sub
+
+'"C:\Users\goudurix\Desktop\portfolio_project\data\AMZN.csv"'
+
+
+Function SMA_20(last_prices As Range, N_days)
+
+N_days = 20
+
+SMA_20 = Application.WorksheetFunction.Sum(last_prices) / N_days
+
+End Function
+
+Sub rolling_mean20()
+
+Dim nom1(10) As String
+Dim n As Integer
+
+nom1(0) = "SMA20_AAPL"
+nom1(1) = "SMA20_AMZN"
+nom1(2) = "SMA20_BIIB"
+nom1(3) = "SMA20_FB"
+nom1(4) = "SMA20_GOOGL"
+nom1(5) = "SMA20_MSFT"
+nom1(6) = "SMA20_NFLX"
+nom1(7) = "SMA20_QCOM"
+nom1(8) = "SMA20_TSLA"
+nom1(9) = "SMA20_NDX"
+nom1(10) = "SMA20_FVX"
+
+For n = 0 To 10
+    For i = 22 To 697
+        Cells(1, n + 14).value = nom1(n)
+        Cells(i - 20, n + 14).value = SMA_20(Range(Cells(i, n + 2), Cells(i - 20, n + 2)), 20)
+    Next i
+Next n
+
+End Sub
+
+Sub returns()
+
+Dim nom2(10) As String
+Dim n As Integer
+
+nom2(0) = "returns_AAPL"
+nom2(1) = "returns_AMZN"
+nom2(2) = "returns_BIIB"
+nom2(3) = "returns_FB"
+nom2(4) = "returns_GOOGL"
+nom2(5) = "returns_MSFT"
+nom2(6) = "returns_NFLX"
+nom2(7) = "returns_QCOM"
+nom2(8) = "returns_TSLA"
+nom2(9) = "returns_NDX"
+nom2(10) = "returns_FVX"
+
+For n = 0 To 9
+    For i = 3 To 697
+        Cells(1, n + 26).value = nom2(n)
+        Cells(i, n + 26).value = (Cells(i, n + 2).value / Cells(i - 1, n + 2).value) - 1
+    Next i
+Next n
+
+
+If n = 10 Then
+    For i = 3 To 697
+        Cells(1, n + 26).value = nom2(n)
+        Cells(i, n + 26).value = (Cells(i, n + 2).value / Cells(i - 1, n + 2).value) - 1
+    Next i
+End If
+
+MsgBox IsNumeric(Cells(3, 36))
+
+
+End Sub
