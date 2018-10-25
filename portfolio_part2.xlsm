@@ -1,0 +1,150 @@
+Sub portfolio()
+
+Worksheets("Feuil1").Activate
+
+Columns("A").Select
+Selection.Copy
+
+Worksheets("Feuil2").Activate
+
+Columns("A").Select
+ActiveSheet.Paste
+
+Cells(1, 2).value = "Portfolio_Returns"
+
+Dim value(695) As Double
+Dim i As Integer
+
+'For n = 26 To 34
+    For i = 3 To 697
+        Worksheets("Feuil2").Activate
+        Cells(i, 2).value = 0.2 * Sheets("Feuil1").Cells(i, 26).value _
+        + 0.1 * Sheets("Feuil1").Cells(i, 27).value + _
+        0.05 * Sheets("Feuil1").Cells(i, 28).value + _
+        0.1 * Sheets("Feuil1").Cells(i, 29).value + _
+        0.1 * Sheets("Feuil1").Cells(i, 30).value + _
+        0.2 * Sheets("Feuil1").Cells(i, 31).value + _
+        0.05 * Sheets("Feuil1").Cells(i, 32).value + _
+        0.15 * Sheets("Feuil1").Cells(i, 33).value + _
+        0.05 * Sheets("Feuil1").Cells(i, 34).value
+    Next i
+'Next n
+End Sub
+
+Function SMA_20(last_prices As Range, N_days As Integer)
+
+N_days = 20
+
+SMA_20 = Application.WorksheetFunction.Sum(last_prices) / 20
+
+End Function
+
+Sub rolling_mean20()
+
+Cells(1, 3) = "SMA_20"
+For i = 22 To 697
+    Cells(i, 3).value = SMA_20(Range(Cells(i, 2), Cells(i - 19, 2)), 20)
+
+Next i
+
+
+End Sub
+
+Sub mean()
+
+Cells(1, 4).value = "portfolio_mean_return"
+Cells(2, 4).value = Application.WorksheetFunction.Sum(Range(Cells(3, 2), Cells(3, 2).End(xlDown))) / 696
+
+End Sub
+
+
+Sub ecart_type()
+'Cells(1, 6).value = "portfolio returns"
+'For i = 2 To 697
+'    Cells(i, 6) = (Cells(i + 1, 2).value / Cells(i, 2).value) - 1
+'Next i
+
+'Cells(1, 7).value = "mean portfolio returns"
+'Cells(2, 7).value = Application.WorksheetFunction.Average(Range(Cells(2, 6), Cells(2, 6).End(xlDown)))
+
+Cells(1, 6).value = "Variance of the portfolio"
+Cells(2, 6).value = Application.WorksheetFunction.Var_P(Range(Cells(3, 2), Cells(3, 2).End(xlDown)))
+
+Cells(1, 7).value = "Std of the portfolio"
+Cells(2, 7).value = Application.WorksheetFunction.StDevP(Range(Cells(3, 2), Cells(3, 2).End(xlDown)))
+
+End Sub
+
+
+Sub VaR()
+
+Cells(1, 8).value = "portfolio_daily_return_$"
+For i = 3 To 697
+    Cells(i, 8).value = Cells(i, n + 2) * 100000
+Next i
+
+Cells(1, 9).value = "VaR 95% of the portfolio"
+Cells(2, 9).value = Application.WorksheetFunction.Percentile(Range(Cells(3, 8), Cells(3, 8).End(xlDown)), 0.05)
+End Sub
+
+Sub beta()
+Cells(1, 10).value = "Nasdaq_returns"
+Cells(1, 11).value = "Covar_portfolio/market"
+For i = 3 To 697
+    Cells(i, 10).value = Sheets("Feuil1").Cells(i, 35).value
+   
+Next i
+
+Cells(2, 11).value = Application.WorksheetFunction.Covariance_P(Range(Cells(3, 2), Cells(3, 2).End(xlDown)), Range(Cells(3, 10), Cells(3, 10).End(xlDown)))
+       
+Cells(3, 11).value = "market_variance"
+Cells(4, 11).value = Application.WorksheetFunction.VarP(Range(Cells(3, 10), Cells(3, 10).End(xlDown)))
+
+Cells(1, 12).value = "portfolio_beta"
+Cells(2, 12).value = Cells(2, 11).value / Cells(4, 11).value
+
+End Sub
+
+Sub alpha()
+
+
+Cells(1, 13).value = "risk_free returns"
+For i = 3 To 697
+    Cells(i, 13).value = Sheets("Feuil1").Cells(i, 36).value
+    
+Next i
+
+Cells(1, 14).value = "portfolio cumulative returns"
+Cells(2, 14).value = Application.WorksheetFunction.Sum(Range(Cells(3, 2), Cells(3, 2).End(xlDown)))
+Cells(3, 14).value = "Market cumulative returns"
+Cells(4, 14).value = Application.WorksheetFunction.Sum(Range(Cells(3, 10), Cells(3, 10).End(xlDown)))
+Cells(5, 14).value = "risk_free cumulative returns"
+Cells(6, 14).value = Application.WorksheetFunction.Sum(Range(Cells(3, 13), Cells(3, 13).End(xlDown)))
+
+Cells(1, 15).value = "portfolio alpha"
+Cells(2, 15).value = Cells(2, 14).value - (Cells(6, 14).value + Cells(2, 12).value * (Cells(4, 14).value - Cells(6, 14).value))
+
+End Sub
+
+Sub histo()
+Dim i As Integer, j As Integer, temps As Integer, rng As Range
+
+For m = 3 To 697
+    Cells(m, 16).value = Cells(m, 2).value
+    
+Next m
+
+
+Set rng = Range(Cells(3, 16), Cells(3, 16).End(xlDown))
+
+For i = 3 To rng.Count
+    For j = i + 1 To rng.Count
+        If rng.Cells(j) < rng.Cells(i) Then
+            temp = rng.Cells(i)
+            rng.Cells(i) = rng.Cells(j)
+            rng.Cells(j) = temps
+        End If
+    Next j
+Next i
+
+End Sub
