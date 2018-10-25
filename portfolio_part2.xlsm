@@ -1,3 +1,5 @@
+'Part 2 code Buy & Hold Tuto
+
 Sub portfolio()
 
 Worksheets("Feuil1").Activate
