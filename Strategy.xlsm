@@ -1,0 +1,204 @@
+'Strategy 1
+
+Sub Collect_Data()
+
+Root = "C:\Users\goudurix\Desktop\portfolio_project\data"
+data = "\AAPL"
+
+Workbooks.Open (Root & data), Local:=True
+Range("A:F").Select
+Selection.Copy
+
+Windows("retour_moyenne").Activate
+Cells(1, 1).Select
+ActiveSheet.Paste
+
+For i = 1 To 6
+    Cells(1, i).Borders.Weight = 2
+    Cells(1, i).Interior.Color = RGB(153, 204, 255)
+    Range(Cells(2, i), Cells(2, i).End(xlDown)).Interior.Color = RGB(204, 229, 255)
+    Range(Cells(2, i), Cells(2, i).End(xlDown)).Borders.Weight = 2
+       
+Next i
+End Sub
+
+Sub feuil3()
+
+Worksheets("Feuil3").Activate
+
+Columns("A").Value = Sheets("Feuil2").Columns("A").Value
+Columns("B").Value = Sheets("Feuil2").Columns("F").Value
+
+End Sub
+
+
+'Connaitre l 'index de la dernière ligne
+'Sub verif()
+'
+'Worksheets("Feuil3").Activate
+'
+'MsgBox Columns("A").End(xlDown).Row
+'End Sub
+Function SMA20(last_prices, Ndays)
+
+Ndays = 20
+
+SMA20 = Application.WorksheetFunction.Sum(last_prices) / Ndays
+
+End Function
+
+
+
+Sub SMA()
+For i = 1 To 2
+
+    Range(Cells(1, i), Cells(1, i).End(xlDown)).Borders.Weight = 2
+    Cells(1, i).Interior.Color = RGB(153, 204, 255)
+    Range(Cells(2, i), Cells(2, i).End(xlDown)).Interior.Color = RGB(204, 229, 255)
+Next i
+Cells(1, 3).Value = "SMA20"
+Cells(1, 3).Borders.Weight = 2
+Cells(1, 3).Interior.Color = RGB(153, 204, 255)
+For i = 21 To 697
+    Cells(i, 3).Value = SMA20(Range(Cells(i - 19, 2), Cells(i, 2)), Ndays)
+    Cells(i, 3).Borders.Weight = 2
+    Cells(i, 3).Interior.Color = RGB(204, 229, 255)
+Next i
+
+End Sub
+
+Sub strategy()
+
+Cells(1, 15).Value = "APPL Price"
+Cells(1, 16).Value = "SMA20"
+Cells(1, 17).Value = "Strategy1"
+Cells(1, 17).Value = "Stock_returns"
+Cells(1, 19).Value = "Portfolio_returns"
+
+For i = 21 To 697
+    For j = 0 To 1
+     Cells(i - 19, 15 + j).Value = Cells(i, 2 + j).Value
+    Next j
+    If Cells(i - 19, 15).Value < Cells(i - 19, 16).Value Then
+        Cells(i - 19, 17).Value = 2
+    ElseIf Cells(i - 19, 15).Value > Cells(i - 19, 16).Value Then
+        Cells(i - 19, 17).Value = -1
+    End If
+        
+Next i
+
+For i = 2 To 678
+    Cells(i, 18).Value = (Cells(i + 1, 15).Value / Cells(i, 15).Value) - 1
+Next i
+
+For i = 2 To 677
+    Cells(i, 19) = Cells(i, 17).Value * Cells(i, 18).Value
+    
+Next i
+Cells(1, 20).Value = "Portfolio_cumulative-return"
+Cells(2, 20) = Application.WorksheetFunction.Sum(Range(Cells(2, 19), Cells(677, 19)).Value)
+End Sub
+
+Sub call_data()
+
+'We compute the Upper and lower band of the Bollinger Bands
+'recall :
+'Upper Band = SMA20 + 20 day standard deviation
+'Lower Band = SMA20 - 20 day standard deviation
+
+
+'Strategy 2
+'standard deviation
+
+Columns("W").Value = Columns("B").Value
+Columns("W:Y").Borders.Weight = 2
+Cells(1, 23).Interior.Color = RGB(255, 178, 102)
+Range(Cells(2, 23), Cells(2, 23).End(xlDown)).Interior.Color = RGB(255, 204, 153)
+Cells(1, 24).Interior.Color = RGB(255, 178, 102)
+Range(Cells(21, 24), Cells(21, 24).End(xlDown)).Interior.Color = RGB(255, 204, 153)
+Columns("X").Value = Columns("C").Value
+
+
+End Sub
+
+Sub Bollinger()
+
+'We compute the Upper and lower band of the Bollinger Bands
+'recall :
+'Upper Band = SMA20 + 20 day standard deviation
+'Lower Band = SMA20 - 20 day standard deviation
+
+'standard deviation
+
+Nrows = Columns("B").End(xlDown).Row
+
+Cells(1, 25).Value = "rolling_std_20Days"
+For i = 21 To Nrows
+    Cells(i, 25) = Application.WorksheetFunction.StDevP(Range(Cells(i - 19, 2), Cells(i, 2)))
+Next i
+Cells(1, 25).Interior.Color = RGB(255, 178, 102)
+Range(Cells(21, 25), Cells(21, 25).End(xlDown)).Interior.Color = RGB(255, 204, 153)
+
+
+'Upper and Lower Bollinger Band
+
+Cells(1, 27).Value = "Lower_Band"
+Cells(1, 26).Value = "Upper_Band"
+
+For i = 21 To Nrows
+    Cells(i, 26).Value = Cells(i, 24) + Cells(i, 25).Value * 2
+    Cells(i, 27).Value = Cells(i, 24) - Cells(i, 25).Value * 2
+Next
+Cells(1, 26).Interior.Color = RGB(255, 178, 102)
+Cells(1, 27).Interior.Color = RGB(255, 178, 102)
+Range(Cells(21, 27), Cells(21, 27).End(xlDown)).Interior.Color = RGB(255, 204, 153)
+Range(Cells(21, 26), Cells(21, 26).End(xlDown)).Interior.Color = RGB(255, 204, 153)
+End Sub
+
+Sub strategy()
+
+'Stock 1 = Buy & Hold + Sell
+'Stock 2 = Strategy of Dip buying
+
+Dim Stock1 As Double
+Dim Stock2 As Integer
+Dim Cash As Double
+
+Stock1 = 5000
+Cash = 1000000
+
+For i = 21 To 697
+    If Stock1 > 0 Then
+        If Cells(i, 23).Value > 0.9 * (Cells(i, 26).Value) Then
+            Stock1 = Stock1 - 10
+            Cash = Cash + 10 * (Cells(i, 23).Value)
+        End If
+    End If
+    
+    If Cash > 0 Then
+        If Cells(i, 23).Value < Cells(i, 24).Value Then
+            Stock1 = Stock1 + 15
+            Cash = Cash - 15 * (Cells(i, 23).Value)
+        ElseIf Cells(i, 23).Value < Cells(i, 27).Value Then
+            Stock1 = Stock1 + 20
+            Cash = Cash - 20 * (Cells(i, 23).Value)
+        End If
+    End If
+Next i
+
+Cells(1, 41).Value = "portfolio actual nb of stocks"
+Cells(2, 41).Value = Stock1
+Cells(1, 42).Value = "Portfolio actual Cash amount"
+Cells(2, 42).Value = Cash
+Cells(3, 41).Value = "Portfolio initial market value"
+Cells(4, 41).Value = 1000000 + 1000 * Cells(2, 23).Value
+Cells(3, 42).Value = "Portfolio market value"
+Cells(4, 42).Value = Cells(2, 42).Value + Stock1 * Cells(697, 23).Value
+
+Cells(5, 41).Value = "Portfolio market return"
+Cells(6, 41).Value = (Cells(4, 42).Value / Cells(4, 41).Value) - 1
+
+Range(Cells(1, 41), Cells(6, 42)).Select
+Selection.Borders.Weight = 2
+Selection.Interior.Color = RGB(255, 204, 204)
+End Sub
